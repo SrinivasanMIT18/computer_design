@@ -1,0 +1,16 @@
+// File name: reg_ram_pc//Bit.hdl
+
+/**
+ * 1-bit register:
+ * If load[t] == 1 then out[t+1] = in[t]
+ *                 else out does not change (out[t+1] = out[t])
+ */
+
+CHIP Bit {
+    IN in, load;
+    OUT out;
+
+    PARTS:
+    Mux (a=w1, b=in, sel=load, out=muxout);
+    DFF (in=muxout, out=out, out=w1);
+}

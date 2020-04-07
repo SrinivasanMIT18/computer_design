@@ -1,0 +1,25 @@
+// File name: reg_ram_pc//RAM64.hdl
+
+/**
+ * Memory of 64 registers, each 16 bit-wide. Out holds the value
+ * stored at the memory location specified by address. If load==1, then 
+ * the in value is loaded into the memory location specified by address 
+ * (the loaded value will be emitted to out from the next time step onward).
+ */
+
+CHIP RAM64 {
+    IN in[16], load, address[6];
+    OUT out[16];
+
+    PARTS:
+    DMux8Way (in=load , sel=address[3..5] , a=dmuxout0 , b=dmuxout1 , c=dmuxout2 , d=dmuxout3 , e=dmuxout4 , f=dmuxout5 , g=dmuxout6 , h=dmuxout7 );
+    RAM8 (in=in , load=dmuxout0 , address=address[0..2] , out=muxin0);
+    RAM8 (in=in , load=dmuxout1 , address=address[0..2] , out=muxin1);
+    RAM8 (in=in , load=dmuxout2 , address=address[0..2] , out=muxin2);
+    RAM8 (in=in , load=dmuxout3 , address=address[0..2] , out=muxin3);
+    RAM8 (in=in , load=dmuxout4 , address=address[0..2] , out=muxin4);
+    RAM8 (in=in , load=dmuxout5 , address=address[0..2] , out=muxin5);
+    RAM8 (in=in , load=dmuxout6 , address=address[0..2] , out=muxin6);
+    RAM8 (in=in , load=dmuxout7 , address=address[0..2] , out=muxin7);
+    Mux8Way16 (a=muxin0 , b=muxin1 , c=muxin2 , d=muxin3 , e=muxin4 , f=muxin5 , g=muxin6 , h=muxin7 , sel=address[3..5], out=out);
+}

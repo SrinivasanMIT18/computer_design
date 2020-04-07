@@ -1,0 +1,21 @@
+// File name: reg_ram_pc//PC.hdl
+
+/**
+ * A 16-bit counter with load and reset control bits.
+ * if      (reset[t] == 1) out[t+1] = 0
+ * else if (load[t] == 1)  out[t+1] = in[t]
+ * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+ * else                    out[t+1] = out[t]
+ */
+
+CHIP PC {
+    IN in[16],load,inc,reset;
+    OUT out[16];
+
+    PARTS:
+    Register (in=mux3out , load=true , out=mux1in1, out=out);
+    Inc16 (in=mux1in1, out=mux1in2);
+    Mux16 (a=mux1in1, b=mux1in2, sel=inc, out=mux2in1); //mux1
+    Mux16 (a=mux2in1, b=in, sel=load, out=mux3in1); //mux2
+    Mux16 (a=mux3in1, b=false, sel=reset, out=mux3out); //mux3
+}
