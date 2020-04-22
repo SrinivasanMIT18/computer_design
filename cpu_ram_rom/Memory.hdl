@@ -1,0 +1,36 @@
+// File name:cpu_ram_rom/Memory.hdl
+
+/**
+ * The complete address space of the Hack computer's memory,
+ * including RAM and memory-mapped I/O. 
+ * The chip facilitates read and write operations, as follows:
+ *     Read:  out(t) = Memory[address(t)](t)
+ *     Write: if load(t-1) then Memory[address(t-1)](t) = in(t-1)
+ * In words: the chip always outputs the value stored at the memory 
+ * location specified by address. If load==1, the in value is loaded 
+ * into the memory location specified by address. This value becomes 
+ * available through the out output from the next time step onward.
+ * Address space rules:
+ * Only the upper 16K+8K+1 words of the Memory chip are used. 
+ * Access to address>0x6000 is invalid. Access to any address in 
+ * the range 0x4000-0x5FFF results in accessing the screen memory 
+ * map. Access to address 0x6000 results in accessing the keyboard 
+ * memory map. The behavior in these addresses is described in the 
+ * Screen and Keyboard chip specifications given in the book.
+ */
+
+CHIP Memory {
+    IN in[16], load, address[15];
+    OUT out[16];
+
+    PARTS:
+    DMux4Way (in=load, sel=address[13..14], a=w1, b=w2, c=screensel, d=kbdsel);
+    Or (a=w1, b=w2, out=ram16ksel);
+    RAM16K (in=in, load=ram16ksel, address=address[0..13], out=ram16kout);
+    Screen (in=in, load=screensel, address=address[0..12], out=screenout);
+//    Keyboard (out=kbdtmpout);
+//    And16 (a=kbdtmpout, b[0]=kbdsel, b[1]=kbdsel, b[2]=kbdsel, b[3]=kbdsel, b[4]=kbdsel, b[5]=kbdsel, b[6]=kbdsel, b[7]=kbdsel, b[8]=kbdsel, b[9]=kbdsel, b[10]=kbdsel, b[11]=kbdsel, b[12]=kbdsel, b[13]=kbdsel, b[14]=kbdsel, b[15]=kbdsel, out=kbdout);
+    Keyboard (out=kbdout);
+    Mux4Way16 (a=ram16kout, b=ram16kout, c=screenout, d=kbdout, sel=address[13..14], out=out);
+
+}
